@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import pickle
+import sys
 
 DEBUG = True
 
@@ -11,7 +12,7 @@ class CWMovieCollectionLoadSaveManager:
 	def LoadMovieCollection(self):
 		ListOfMCItems = []
 		try:
-			with open(FILENAME) as f:
+			with open(FILENAME, 'rb') as f:
 				ListOfMCItems = pickle.load(f)
 			return ListOfMCItems
 		except:
@@ -22,8 +23,7 @@ class CWMovieCollectionLoadSaveManager:
 	def SaveMovieCollection(self, ListOfMCItems):
 		try:
 			with open(FILENAME, 'wb') as f:
-				for item in ListOfMCItems:
-					pickle.dump(item, f)
+				pickle.dump(ListOfMCItems, f)
 		except:
 			if DEBUG == True:
 				print 'Error on saving movie collection'	

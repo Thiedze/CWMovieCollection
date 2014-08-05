@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from amazonproduct import API
-from CWMovieCollectionItem import CWMovieCollectionItem as MCItem
+from CWMovieCollectionItem import CWMovieCollectionItem
 import sys
 import urllib
 import os.path
@@ -19,6 +19,7 @@ class CWMovieCollectionParsingManager:
 	def Parse(self, ean):		
 		self.InitAmazonApi(ean)
 
+		MCItem = CWMovieCollectionItem()
 		MCItem.ean = ean
 		MCItem.actors = self.GetActors()
 		MCItem.directors = self.GetDirectors()
@@ -31,11 +32,11 @@ class CWMovieCollectionParsingManager:
 		MCItem.studio = self.GetStudio()
 		MCItem.audienceRating = self.GetAudienceRating()
 		MCItem.imageUrl = self.GetImageUrl(MCItem.asin)
-		#MCItem.Summary = self.GetSummary()
+		MCItem.summary = self.GetSummary()
 		MCItem.languages = self.GetLanguage()
 		MCItem.subtitles = self.GetSubtitles()
-		MCItem.audioFormat = self.GetAudioFormat()
-		MCItem.plublicationDate = self.GetPublicationDate()
+		MCItem.audioFormats = self.GetAudioFormat()
+		MCItem.publicationDate = self.GetPublicationDate()
 		MCItem.runningTime = self.GetRunningTime()
 
 		return MCItem
@@ -43,7 +44,7 @@ class CWMovieCollectionParsingManager:
 	def GetRunningTime(self):
 		runningTime = ''
 		try:
-			runningTime = self.root.ItemAttributes.RunningTime
+			runningTime = str(self.root.ItemAttributes.RunningTime)
 		except:
 			if DEBUG == True:
 				print 'Error parsing runningtime'
@@ -53,7 +54,7 @@ class CWMovieCollectionParsingManager:
 	def GetPublicationDate(self):
 		publicationDate = ''
 		try:
-			publicationDate = self.root.ItemAttributes.PublicationDate
+			publicationDate = str(self.root.ItemAttributes.PublicationDate)
 		except:
 			if DEBUG == True:
 				print 'Error parsing publicationdate'
@@ -65,7 +66,7 @@ class CWMovieCollectionParsingManager:
 		try:
 			for audioFormat in self.root.ItemAttributes.Languages.Language:
 				try:
-					audioFormats.append(audioFormat.AudioFormat)
+					audioFormats.append(str(audioFormat.AudioFormat))
 				except:
 					if DEBUG == True:
 						print 'No audio format found'
@@ -80,7 +81,7 @@ class CWMovieCollectionParsingManager:
 		try:
 			for subtitle in self.root.ItemAttributes.Languages.Language:
 				if subtitle.Type == 'Subtitled':
-					subtitles.append(subtitle.Name)
+					subtitles.append(str(subtitle.Name))
 		except:
 			if DEBUG == True:
 				print 'Error parsing subtitle'
@@ -92,7 +93,7 @@ class CWMovieCollectionParsingManager:
 		try:
 			for language in self.root.ItemAttributes.Languages.Language:
 				if language.Type != 'Original':
-					languages.append(language.Name)
+					languages.append(str(language.Name))
 		except:
 			if DEBUG == True:
 				print 'Error parsing language'
@@ -102,7 +103,7 @@ class CWMovieCollectionParsingManager:
 	def GetSummary(self):
 		summary = ''
 		try:
-			summary = self.root.Offers.Offer.Promotions.Promotion.Summary
+			summary = str(self.root.Offers.Offer.Promotions.Promotion.Summary)
 		except:
 			if DEBUG == True:
 				print 'Error parsing summary'
@@ -112,9 +113,9 @@ class CWMovieCollectionParsingManager:
 	def GetImageUrl(self, asin):
 		imageUrl = ''
 		try:
-			imageUrl = self.root.LargeImage.URL
+			imageUrl = str(self.root.LargeImage.URL)
 			if imageUrl != '' and os.path.isfile(asin + ".jpg") == False:
-				urllib.urlretrieve(str(imageUrl), asin + ".jpg")
+				urllib.urlretrieve(imageUrl, asin + ".jpg")
 		except:
 			if DEBUG == True:
 				print 'Error parsing imageurl'
@@ -124,7 +125,7 @@ class CWMovieCollectionParsingManager:
 	def GetAudienceRating(self):
 		audienceRating = ''
 		try:
-			audienceRating = self.root.ItemAttributes.AudienceRating
+			audienceRating = str(self.root.ItemAttributes.AudienceRating)
 		except:
 			if DEBUG == True:
 				print 'Error parsing audiencerating'
@@ -134,7 +135,7 @@ class CWMovieCollectionParsingManager:
 	def GetStudio(self):
 		studio = ''
 		try:
-			studio = self.root.ItemAttributes.Studio
+			studio = str(self.root.ItemAttributes.Studio)
 		except:
 			if DEBUG == True:
 				print 'Error parsing studio: '
@@ -144,7 +145,7 @@ class CWMovieCollectionParsingManager:
 	def GetAsin(self):
 		asin = ''
 		try:
-			asin = self.root.ASIN
+			asin = str(self.root.ASIN)
 		except:
 			if DEBUG == True:
 				print 'Error parsing asin: '
@@ -154,7 +155,7 @@ class CWMovieCollectionParsingManager:
 	def GetAmazonUrl(self):
 		amazonUrl = ''
 		try:
-			amazonUrl = self.root.DetailPageURL
+			amazonUrl = str(self.root.DetailPageURL)
 		except:
 			if DEBUG == True:
 				print 'Error parsing detailpageurl: '
@@ -164,7 +165,7 @@ class CWMovieCollectionParsingManager:
 	def GetPrice(self):
 		price = ''
 		try:
-			price = self.root.Offers.Offer.OfferListing.Price.FormattedPrice
+			price = str(self.root.Offers.Offer.OfferListing.Price.FormattedPrice)
 		except:
 			if DEBUG == True:
 				print 'Error parsing price: ' 
@@ -174,7 +175,7 @@ class CWMovieCollectionParsingManager:
 	def GetTitle(self): 
 		title = ''
 		try:
-			title = self.root.ItemAttributes.Title
+			title = str(self.root.ItemAttributes.Title)
 		except:
 			if DEBUG == True:
 				print 'Error parsing title: ' 
@@ -184,7 +185,7 @@ class CWMovieCollectionParsingManager:
 	def GetProductGroup(self): 
 		productGroup = ''
 		try:
-			productGroup = self.root.ItemAttributes.ProductGroup
+			productGroup = str(self.root.ItemAttributes.ProductGroup)
 		except:
 			if DEBUG == True:
 				print 'Error parsing productgroup: ' 
@@ -194,7 +195,7 @@ class CWMovieCollectionParsingManager:
 	def GetManufacturer(self):
 		manufacturer = ''
 		try:
-			manufacturer = self.root.ItemAttributes.Manufacturer
+			manufacturer = str(self.root.ItemAttributes.Manufacturer)
 		except:
 			if DEBUG == True:
 				print 'Error parsing manufacturer: ' 
@@ -206,7 +207,7 @@ class CWMovieCollectionParsingManager:
 		directors = []
 		for director in self.root.ItemAttributes.Director:
 			try:
-				directors.append(director)
+				directors.append(str(director))
 			except:
 				if DEBUG == True:
 					print 'Error parsing directors: ' 
@@ -217,7 +218,7 @@ class CWMovieCollectionParsingManager:
 		actors = []
 		for actor in self.root.ItemAttributes.Actor:
 			try:
-				actors.append(actor)
+				actors.append(str(actor))
 			except:
 				if DEBUG == True:
 					print 'Error parsing actors: '

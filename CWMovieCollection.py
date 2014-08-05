@@ -2,28 +2,29 @@
 
 from CWMovieCollectionLoadSaveManager import CWMovieCollectionLoadSaveManager
 from CWMovieCollectionParsingManager import CWMovieCollectionParsingManager
+from CWMovieCollectionYoutube import CWMovieCollectionYoutube
 
 LoadSaveManager = CWMovieCollectionLoadSaveManager()
 ParsingManager = CWMovieCollectionParsingManager()
+Youtube = CWMovieCollectionYoutube()
 
-#MovieCollection = []
+Youtube.search('psy')
 
-#dvd = ParsingManager.Parse('4010232049841')
-#MovieCollection.append(dvd)
+for url in Youtube.videoUrls:
+	print url
 
-#MovieCollection.append(dvd)
+MovieCollection = []
 
-#LoadSaveManager.SaveMovieCollection(MovieCollection)
-MovieCollection = LoadSaveManager.LoadMovieCollection()
+dvd = ParsingManager.Parse('4010232049841')
+MovieCollection.append(dvd)
 
-for item in MovieCollection:
-	print item.title
+MovieCollection.append(dvd)
 
-'''if MovieCollection != None:
-	dvd = MovieCollection
+LoadSaveManager.SaveMovieCollection(MovieCollection)
+#MovieCollection = LoadSaveManager.LoadMovieCollection()
 
-	print dvd	
-
+'''for dvd in MovieCollection:
+	print '============================================='
 	print dvd.title
 	print dvd.price
 	print dvd.directors
@@ -40,8 +41,9 @@ for item in MovieCollection:
 	print dvd.subtitles
 	print dvd.audioFormats
 	print dvd.publicationDate
-	print dvd.runningTime'''
-
+	print dvd.runningTime
+	print '============================================='
+'''
 #item = api.item_lookup(ItemId='', IdType='EAN', SearchIndex='All', ResponseGroup='Large').Items.Item
 
 #ASIN = item.ASIN

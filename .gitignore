@@ -54,3 +54,11 @@ docs/_build/
 /B00332G54M.jpg
 /Response.xml
 /response.txt
+/CWMovieCollection.py~
+/CWMovieCollectionItem.py~
+/CWMovieCollectionLoadSaveManager.py~
+/CWMovieCollectionParsingManager.py~
+/CWMovieCollectionRating.py~
+/CWMovieCollectionRental.py~
+/CWMovieCollectionYoutube.py~
+/MovieCollection.dat
