@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 from CWMovieCollectionRental import CWMovieCollectionRental
-from CWMovieCollectionRating import CWMovieCollectionRating
 
 DEBUG = False
 
@@ -26,4 +25,4 @@ class CWMovieCollectionItem:
 		self.audioFormats = []
 		self.publicationDate = ''
 		self.rental = [CWMovieCollectionRental()]
-		self.rating = CWMovieCollectionRating()
+		self.rating = None

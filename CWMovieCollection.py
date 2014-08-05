@@ -2,30 +2,25 @@
 
 from CWMovieCollectionLoadSaveManager import CWMovieCollectionLoadSaveManager
 from CWMovieCollectionParsingManager import CWMovieCollectionParsingManager
-from CWMovieCollectionYoutube import CWMovieCollectionYoutube
 
 LoadSaveManager = CWMovieCollectionLoadSaveManager()
 ParsingManager = CWMovieCollectionParsingManager()
-Youtube = CWMovieCollectionYoutube()
-
-Youtube.search('psy')
-
-for url in Youtube.videoUrls:
-	print url
 
 MovieCollection = []
 
 dvd = ParsingManager.Parse('4010232049841')
 MovieCollection.append(dvd)
 
-MovieCollection.append(dvd)
+#MovieCollection.append(dvd)
 
-LoadSaveManager.SaveMovieCollection(MovieCollection)
+#LoadSaveManager.SaveMovieCollection(MovieCollection)
 #MovieCollection = LoadSaveManager.LoadMovieCollection()
 
-'''for dvd in MovieCollection:
+for dvd in MovieCollection:
 	print '============================================='
-	print dvd.title
+	print dvd.summary
+	
+	'''print dvd.title
 	print dvd.price
 	print dvd.directors
 	print dvd.actors
@@ -41,9 +36,8 @@ LoadSaveManager.SaveMovieCollection(MovieCollection)
 	print dvd.subtitles
 	print dvd.audioFormats
 	print dvd.publicationDate
-	print dvd.runningTime
+	print dvd.runningTime'''
 	print '============================================='
-'''
 #item = api.item_lookup(ItemId='', IdType='EAN', SearchIndex='All', ResponseGroup='Large').Items.Item
 
 #ASIN = item.ASIN

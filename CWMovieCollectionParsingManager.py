@@ -1,10 +1,15 @@
 #!/usr/bin/python
 
-from amazonproduct import API
 from CWMovieCollectionItem import CWMovieCollectionItem
+from CWMovieCollectionRating import CWMovieCollectionRating
+
 import sys
 import urllib
 import os.path
+import xml.etree.ElementTree as ET
+import urllib
+
+from amazonproduct import API
 
 DEBUG = False
 
@@ -13,11 +18,18 @@ class CWMovieCollectionParsingManager:
 	def __init__(self):
 		self.api = API(locale='de')
 
-	def InitAmazonApi(self, ean):
-		self.root = self.api.item_lookup(ItemId=ean, IdType='EAN', SearchIndex='All', ResponseGroup='Large').Items.Item
+	def initAmazonApi(self, ean):
+		self.amazon = self.api.item_lookup(ItemId=ean, IdType='EAN', SearchIndex='All', ResponseGroup='Large').Items.Item
+
+	def initOfdbApi(self, ean):
+		xmlUrl = 'http://ofdbgw.geeksphere.de/searchean/'+ean
+		self.ofdb = ET.parse(urllib.urlopen(xmlUrl)).getroot()
+		xmlUrl = 'http://ofdbgw.home-of-root.de/movie/'+self.ofdb.findall('resultat')[0].findall('eintrag')[0].findall('filmid')[0].text
+		self.ofdb = ET.parse(urllib.urlopen(xmlUrl)).getroot()
 
 	def Parse(self, ean):		
-		self.InitAmazonApi(ean)
+		self.initAmazonApi(ean)
+		self.initOfdbApi(ean)
 
 		MCItem = CWMovieCollectionItem()
 		MCItem.ean = ean
@@ -38,13 +50,25 @@ class CWMovieCollectionParsingManager:
 		MCItem.audioFormats = self.GetAudioFormat()
 		MCItem.publicationDate = self.GetPublicationDate()
 		MCItem.runningTime = self.GetRunningTime()
+		MCItem.rating = CWMovieCollectionRating(MCItem.title)
+		MCItem.rating.ofdbStars = self.GetOfdbStars()
 
 		return MCItem
+
+	def GetOfdbStars(self):
+		ofdbStars = ''
+		try:
+			ofdbStars =  self.ofdb.findall('resultat')[0].findall('bewertung')[0].findall('note')[0].text
+		except:
+			if DEBUG == True:
+				print 'Error parsing ofdbstars'
+				print sys.exc_info()
+		return ofdbStars
 
 	def GetRunningTime(self):
 		runningTime = ''
 		try:
-			runningTime = str(self.root.ItemAttributes.RunningTime)
+			runningTime = str(self.amazon.ItemAttributes.RunningTime)
 		except:
 			if DEBUG == True:
 				print 'Error parsing runningtime'
@@ -54,7 +78,7 @@ class CWMovieCollectionParsingManager:
 	def GetPublicationDate(self):
 		publicationDate = ''
 		try:
-			publicationDate = str(self.root.ItemAttributes.PublicationDate)
+			publicationDate = str(self.amazon.ItemAttributes.PublicationDate)
 		except:
 			if DEBUG == True:
 				print 'Error parsing publicationdate'
@@ -64,7 +88,7 @@ class CWMovieCollectionParsingManager:
 	def GetAudioFormat(self):
 		audioFormats = []
 		try:
-			for audioFormat in self.root.ItemAttributes.Languages.Language:
+			for audioFormat in self.amazon.ItemAttributes.Languages.Language:
 				try:
 					audioFormats.append(str(audioFormat.AudioFormat))
 				except:
@@ -79,7 +103,7 @@ class CWMovieCollectionParsingManager:
 	def GetSubtitles(self):
 		subtitles = []
 		try:
-			for subtitle in self.root.ItemAttributes.Languages.Language:
+			for subtitle in self.amazon.ItemAttributes.Languages.Language:
 				if subtitle.Type == 'Subtitled':
 					subtitles.append(str(subtitle.Name))
 		except:
@@ -91,7 +115,7 @@ class CWMovieCollectionParsingManager:
 	def GetLanguage(self):
 		languages = []
 		try:
-			for language in self.root.ItemAttributes.Languages.Language:
+			for language in self.amazon.ItemAttributes.Languages.Language:
 				if language.Type != 'Original':
 					languages.append(str(language.Name))
 		except:
@@ -103,7 +127,7 @@ class CWMovieCollectionParsingManager:
 	def GetSummary(self):
 		summary = ''
 		try:
-			summary = str(self.root.Offers.Offer.Promotions.Promotion.Summary)
+			summary = self.ofdb.findall('resultat')[0].findall('beschreibung')[0].text
 		except:
 			if DEBUG == True:
 				print 'Error parsing summary'
@@ -113,7 +137,7 @@ class CWMovieCollectionParsingManager:
 	def GetImageUrl(self, asin):
 		imageUrl = ''
 		try:
-			imageUrl = str(self.root.LargeImage.URL)
+			imageUrl = str(self.amazon.LargeImage.URL)
 			if imageUrl != '' and os.path.isfile(asin + ".jpg") == False:
 				urllib.urlretrieve(imageUrl, asin + ".jpg")
 		except:
@@ -125,7 +149,7 @@ class CWMovieCollectionParsingManager:
 	def GetAudienceRating(self):
 		audienceRating = ''
 		try:
-			audienceRating = str(self.root.ItemAttributes.AudienceRating)
+			audienceRating = str(self.amazon.ItemAttributes.AudienceRating)
 		except:
 			if DEBUG == True:
 				print 'Error parsing audiencerating'
@@ -135,7 +159,7 @@ class CWMovieCollectionParsingManager:
 	def GetStudio(self):
 		studio = ''
 		try:
-			studio = str(self.root.ItemAttributes.Studio)
+			studio = str(self.amazon.ItemAttributes.Studio)
 		except:
 			if DEBUG == True:
 				print 'Error parsing studio: '
@@ -145,7 +169,7 @@ class CWMovieCollectionParsingManager:
 	def GetAsin(self):
 		asin = ''
 		try:
-			asin = str(self.root.ASIN)
+			asin = str(self.amazon.ASIN)
 		except:
 			if DEBUG == True:
 				print 'Error parsing asin: '
@@ -155,7 +179,7 @@ class CWMovieCollectionParsingManager:
 	def GetAmazonUrl(self):
 		amazonUrl = ''
 		try:
-			amazonUrl = str(self.root.DetailPageURL)
+			amazonUrl = str(self.amazon.DetailPageURL)
 		except:
 			if DEBUG == True:
 				print 'Error parsing detailpageurl: '
@@ -165,7 +189,7 @@ class CWMovieCollectionParsingManager:
 	def GetPrice(self):
 		price = ''
 		try:
-			price = str(self.root.Offers.Offer.OfferListing.Price.FormattedPrice)
+			price = str(self.amazon.Offers.Offer.OfferListing.Price.FormattedPrice)
 		except:
 			if DEBUG == True:
 				print 'Error parsing price: ' 
@@ -175,7 +199,7 @@ class CWMovieCollectionParsingManager:
 	def GetTitle(self): 
 		title = ''
 		try:
-			title = str(self.root.ItemAttributes.Title)
+			title = str(self.amazon.ItemAttributes.Title)
 		except:
 			if DEBUG == True:
 				print 'Error parsing title: ' 
@@ -185,7 +209,7 @@ class CWMovieCollectionParsingManager:
 	def GetProductGroup(self): 
 		productGroup = ''
 		try:
-			productGroup = str(self.root.ItemAttributes.ProductGroup)
+			productGroup = str(self.amazon.ItemAttributes.ProductGroup)
 		except:
 			if DEBUG == True:
 				print 'Error parsing productgroup: ' 
@@ -195,7 +219,7 @@ class CWMovieCollectionParsingManager:
 	def GetManufacturer(self):
 		manufacturer = ''
 		try:
-			manufacturer = str(self.root.ItemAttributes.Manufacturer)
+			manufacturer = str(self.amazon.ItemAttributes.Manufacturer)
 		except:
 			if DEBUG == True:
 				print 'Error parsing manufacturer: ' 
@@ -205,7 +229,7 @@ class CWMovieCollectionParsingManager:
 	
 	def GetDirectors(self):
 		directors = []
-		for director in self.root.ItemAttributes.Director:
+		for director in self.amazon.ItemAttributes.Director:
 			try:
 				directors.append(str(director))
 			except:
@@ -216,7 +240,7 @@ class CWMovieCollectionParsingManager:
 	
 	def GetActors(self):
 		actors = []
-		for actor in self.root.ItemAttributes.Actor:
+		for actor in self.amazon.ItemAttributes.Actor:
 			try:
 				actors.append(str(actor))
 			except:
