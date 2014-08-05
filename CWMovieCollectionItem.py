@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-from CWMovieCollectionRental import CWMovieCollectionRental
-
 DEBUG = False
 
 class CWMovieCollectionItem:
@@ -24,5 +22,5 @@ class CWMovieCollectionItem:
 		self.subtitles = []
 		self.audioFormats = []
 		self.publicationDate = ''
-		self.rental = [CWMovieCollectionRental()]
+		self.rental = []
 		self.rating = None

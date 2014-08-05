@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
+from flask import Flask, Response
+import jsonpickle
+
 from CWMovieCollectionLoadSaveManager import CWMovieCollectionLoadSaveManager
 from CWMovieCollectionParsingManager import CWMovieCollectionParsingManager
 
-LoadSaveManager = CWMovieCollectionLoadSaveManager()
-ParsingManager = CWMovieCollectionParsingManager()
+DEBUG = False
 
+'''
 MovieCollection = []
 
 dvd = ParsingManager.Parse('4010232049841')
@@ -18,9 +21,9 @@ MovieCollection.append(dvd)
 
 for dvd in MovieCollection:
 	print '============================================='
-	print dvd.summary
+	print dvd.rental[0].borrowed
 	
-	'''print dvd.title
+	print dvd.title
 	print dvd.price
 	print dvd.directors
 	print dvd.actors
@@ -36,20 +39,57 @@ for dvd in MovieCollection:
 	print dvd.subtitles
 	print dvd.audioFormats
 	print dvd.publicationDate
-	print dvd.runningTime'''
-	print '============================================='
-#item = api.item_lookup(ItemId='', IdType='EAN', SearchIndex='All', ResponseGroup='Large').Items.Item
+	print dvd.runningTime
+	print '=============================================
+'''
 
-#ASIN = item.ASIN
-#print ASIN
+if DEBUG == True:
+	print 'Start flask'
 
-#for act in item.ItemAttributes.Actor:
-#	try:
-#		print act
-#	except:
-#		print 'Error'
+LoadSaveManager = CWMovieCollectionLoadSaveManager()
+ParsingManager = CWMovieCollectionParsingManager()
+
+app = Flask(__name__)
+
+@app.route('/<ean>', methods=['GET', 'POST'])
+def parse(ean):
+	if request.method == 'GET':
+		if DEBUG == True:
+			print 'GET: ' + ean
+
+		for dvd in MovieCollection:
+			if dvd.ean == ean:
+				resp = jsonpickle.encode(dvd)
+				break
+	
+	elif request.method == 'POST':
+		if DEBUG == True:
+			print 'POST: ' + ean
+
+		dvd = ParsingManager.Parse(ean)
+		MovieCollection.append(dvd)
+		resp = jsonpickle.encode(dvd)
+	
+	return resp
+
+@app.route('/moviecollection', methods=['GET'])
+def moviecollection():
+	if DEBUG == True:
+		print 'GET: moviecollection'
+
+	return jsonpickle.encode(MovieCollection)
 
 
-#print item.LargeImage.URL
+if __name__ == '__main__':
+	if DEBUG == True:
+		print 'Load Movie Collection'
+	MovieCollection = LoadSaveManager.LoadMovieCollection()
+	
+	app.debug = DEBUG
+	app.run()
 
-#print item.Offers.Offer.OfferListing.Price.FormattedPrice
+	if DEBUG == True:
+		print 'Save Movie Collection'
+	LoadSaveManager.SaveMovieCollection(MovieCollection)
+
+

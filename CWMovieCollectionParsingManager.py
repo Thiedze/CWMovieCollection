@@ -2,6 +2,7 @@
 
 from CWMovieCollectionItem import CWMovieCollectionItem
 from CWMovieCollectionRating import CWMovieCollectionRating
+from CWMovieCollectionRental import CWMovieCollectionRental
 
 import sys
 import urllib
@@ -50,8 +51,8 @@ class CWMovieCollectionParsingManager:
 		MCItem.audioFormats = self.GetAudioFormat()
 		MCItem.publicationDate = self.GetPublicationDate()
 		MCItem.runningTime = self.GetRunningTime()
-		MCItem.rating = CWMovieCollectionRating(MCItem.title)
-		MCItem.rating.ofdbStars = self.GetOfdbStars()
+		MCItem.rating = CWMovieCollectionRating(MCItem.title,  self.GetOfdbStars())
+		MCItem.rental.append(CWMovieCollectionRental())
 
 		return MCItem
 

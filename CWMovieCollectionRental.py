@@ -8,5 +8,5 @@ class CWMovieCollectionRental:
 	
 	def __init__(self):
 		self.hirer = ''
-		self.borrowed = datetime.now()
+		self.borrowed = ''
 		self.restitution = ''

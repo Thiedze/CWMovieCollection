@@ -7,9 +7,9 @@ DEBUG = False
 
 class CWMovieCollectionRating:
 	
-	def __init__(self, title):
+	def __init__(self, title, ofdbStars):
 		self.amazonStars = 0
-		self.ofdbStars = 0
+		self.ofdbStars = ofdbStars
 		self.myStars = 0
 		self.hasSeen = False
 		self.comment = ''
