@@ -1,18 +1,18 @@
 #!/usr/bin/python
 
-from CWMovieCollectionItem import CWMovieCollectionItem
-from CWMovieCollectionRating import CWMovieCollectionRating
-from CWMovieCollectionRental import CWMovieCollectionRental
-
-import sys
-import urllib
 import os.path
-import xml.etree.ElementTree as ET
+import sys
 import urllib
 
 from amazonproduct import API
 
-DEBUG = False
+from CWMovieCollectionItem import CWMovieCollectionItem
+from CWMovieCollectionRating import CWMovieCollectionRating
+from CWMovieCollectionRental import CWMovieCollectionRental
+import xml.etree.ElementTree as ET
+
+
+DEBUG = True
 
 class CWMovieCollectionParsingManager:
 	
@@ -137,15 +137,18 @@ class CWMovieCollectionParsingManager:
 
 	def GetImageUrl(self, asin):
 		imageUrl = ''
+		imageName = "Images/" + asin + ".jpg"
+
+		print imageName
 		try:
 			imageUrl = str(self.amazon.LargeImage.URL)
-			if imageUrl != '' and os.path.isfile(asin + ".jpg") == False:
-				urllib.urlretrieve(imageUrl, asin + ".jpg")
+			if imageUrl != '' and os.path.isfile(imageName) == False:
+				urllib.urlretrieve(imageUrl, imageName)
 		except:
 			if DEBUG == True:
 				print 'Error parsing imageurl'
 				print sys.exc_info()
-		return imageUrl
+		return imageName
 
 	def GetAudienceRating(self):
 		audienceRating = ''
